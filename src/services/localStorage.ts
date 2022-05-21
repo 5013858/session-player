@@ -9,13 +9,26 @@ type RecorderData = {
 
 export const getRecorderData = async (): Promise<RecorderData> => {
   try {
-    const { recordList, referer } = JSON.parse(localStorage.getItem('recorderData')! || '{}') as RecorderData;
-
+    // const { recordList, referer } = JSON.parse(localStorage.getItem('recorderData')! || '{}') as RecorderData;
+    const { data } = await fetch('http://localhost:7001/records/get', {
+      method: 'POST',
+      headers: {
+        'user-agent': 'vscode-restclient',
+        'content-type': 'application/json',
+        authorization:
+          'Bearer eyJhbGciOiJIUzI1NiJ9.dGVzdA.GfxRk-CtH6rXPrQstXkm8pkjEhPFO1h5kFEBciCZN48'
+      },
+      body: JSON.stringify({
+        _id: '6262688b3b2c6b11db9752ec'
+      })
+    }).then(res => res.json());
+    const recordList = data[0].snapshot.data;
+    const referer = '';
     if (!recordList || recordList.length === 0) {
-      throw new Error('RecordData is empty 🧐'); 
+      throw new Error('RecordData is empty 🧐');
     }
 
-    const firstRecord = recordList.shift()!;
+    const firstRecord = recordList.shift();
 
     if (firstRecord.type !== 'snapshot') {
       throw new Error('Record list not start with a page snapshot');

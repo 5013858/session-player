@@ -16,8 +16,8 @@ type StoreSetter = {
   loadRecorderData(records: Record[], ref: string, info?: any): void
 
   setCriticalActionIndexs(actions: any[]): void
-  setRecordList(records: Record[]): void
   setReferer(ref: string): void
+  setRecordList(records: Record[]): void
   setSessionInfo(info: any): void
   setError(val: boolean): void
   setFullScreen(val: boolean): void

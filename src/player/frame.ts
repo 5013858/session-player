@@ -32,10 +32,9 @@ class FrameWorkerClass extends ObserverPattern {
     let isLastFrame: boolean = false
     let currentRecordCursor: number = 0
     let currentFrameCursor: number = 0
-
     while (!isLastFrame) {
       let thisFrame: Frame = []
-
+      // 60 ms 一次循环
       let thisFrameStart: number = this.firstFrameTime + currentFrameCursor * INTERVAL
       let thisFrameEnd: number = thisFrameStart + INTERVAL
 

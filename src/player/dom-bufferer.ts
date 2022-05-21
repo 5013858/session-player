@@ -60,7 +60,7 @@ class DomTreeBuffererClass {
   public reload() {
     this.domLayer.src = 'about:blank'
 
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       this.domLayer.onload = async () => {
         await this.fillTheDomLayerBySnapshot(this.domLayer, this.pageSnapshot, this.referer)
         resolve()

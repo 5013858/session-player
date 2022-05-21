@@ -223,7 +223,6 @@ class PlayerClass extends ObserverPattern implements Player {
   private playFrame1by1 = (): void => {
     const { currentFrameIndex, INTERVAL, lastPlayTime } = this;
     const { frames } = FrameWorker;
-
     // last frame
     if (currentFrameIndex >= frames.length - 1) {
       this.over = true;
