@@ -45,11 +45,12 @@ export default function Screen() {
         {/* replay DOM mutation */}
         <iframe
           ref={ele => (domLayer = ele!)}
+          src={'/'}
           {...bem('fill')}
           id="domLayer"
-          sandbox="allow-forms allow-same-origin"
-          src="about:blank"
-          frameBorder="0"
+          sandbox="allow-forms allow-same-origin allow-scripts"
+          // src="about:blank"
+          // frameBorder="0"
         />
 
         {/* replay mouse move & click */}

@@ -1,3 +1,4 @@
+const  copyWebpackPlugin= require("copy-webpack-plugin");
 const path = require('path')
 const {
   CheckerPlugin,
@@ -60,7 +61,6 @@ module.exports = {
   },
   plugins: [
     new CheckerPlugin(),
-
     new MiniCssExtractPlugin({
       // only work in production mode
       filename: '[name].[contenthash:6].css',
@@ -68,9 +68,14 @@ module.exports = {
     }),
 
     new HtmlWebpackPlugin({
+      filename: 'yrecord.html',
       template: resolve('public/index.html'),
       inject: true
-    })
+    }),
+    new copyWebpackPlugin([{
+      from: path.join(__dirname,'..','/public/code'),//静态资源路径
+      to:''//跟随code目录存放在dist根路径目录下
+  }]),
   ],
 
   performance: {

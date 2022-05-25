@@ -1,7 +1,8 @@
 const merge = require('webpack-merge')
 const baseWebpackConfig = require('./base')
 const webpack = require('webpack')
-
+const path = require('path')
+const OpenBrowserPlugin = require('open-browser-webpack-plugin');
 const devConfig = merge(baseWebpackConfig, {
   mode: 'development',
 
@@ -20,6 +21,7 @@ const devConfig = merge(baseWebpackConfig, {
   },
 
   plugins: [
+    new OpenBrowserPlugin({ url: 'http://localhost:8080/yrecord.html' }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(),
 

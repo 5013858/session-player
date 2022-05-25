@@ -49,6 +49,15 @@ class DomTreeBuffererClass {
 
     return snapshot.replace(escapeLinkTagReg, '').replace(escapeScriptTagReg, '')
   }
+  private filterYrecord(snapshot: string): string {
+    const y_record_dom = (document.getElementById('domLayer') as HTMLIFrameElement)?.contentWindow?.document?.getElementById('y-record-content')
+    if(y_record_dom){
+      y_record_dom.style.display = 'none'
+    }
+    // return snapshot;
+    console.log(localStorage.getItem('ybw'))
+    return snapshot.replace(/<(script|noscript)[^>]*>.*?y-record\/index.js.*?<\/[^>]*(script|noscript)>/g, '')
+  }
 
   private insertBaseTag(snapshot: string): string {
     const baseTag = `<base href="${this.referer}">`
@@ -57,6 +66,13 @@ class DomTreeBuffererClass {
     return snapshot.replace(headTagReg, `$& ${baseTag}`)
   }
 
+  private absoluteLink(snapshot: string, locationOrigin): string {
+    const baseTag = `<base href="${this.referer}">`
+    return snapshot.replace( /<link.*?href *= *["'](\/.*?)["']/g, (match,p1)=>{
+      return match.replace(p1,`${locationOrigin}${p1}`)
+    }).replace(/<script.*?src *= *["'](\/.*?)["']/g, (match,p1)=>{
+      return match.replace(p1,`${locationOrigin}${p1}`)})
+  }
   public reload() {
     this.domLayer.src = 'about:blank'
 
@@ -68,17 +84,20 @@ class DomTreeBuffererClass {
     })
   }
 
-  public fillTheDomLayerBySnapshot(domLayer: HTMLIFrameElement, pageSnapshot: string, referer: string): Promise<boolean> {
+  public fillTheDomLayerBySnapshot(domLayer: HTMLIFrameElement, pageSnapshot: string, referer: string, prefix?:any): Promise<boolean> {
+    // debugger;
     this.Element2RecorderId.clear()
     this.RecorderId2Element.clear()
     this.domLayer = domLayer
     this.referer = referer
-    this.pageSnapshot = this.wash(pageSnapshot)
+    // this.pageSnapshot = this.wash(pageSnapshot) 
+    this.pageSnapshot = this.filterYrecord(pageSnapshot);
     this.pageSnapshot = this.insertBaseTag(pageSnapshot)
+    this.pageSnapshot = this.absoluteLink(pageSnapshot,prefix)
 
     return new Promise((resolve, reject) => {
       const layerDoc = domLayer.contentDocument
-
+      console.log(layerDoc)
       if (!layerDoc) {
         reject(false)
         _warn("iframe document doesn't existed!")
@@ -89,13 +108,13 @@ class DomTreeBuffererClass {
         // requestIdleCallback require very new verisons of Chrome, Firefox
         // more: http://mdn.io/requestIdleCallback
         myWindow.requestIdleCallback(() => {
-          layerDoc.write(`<!DOCTYPE html>${this.pageSnapshot}`)
+          // layerDoc.write(`<!DOCTYPE html>${this.pageSnapshot}`)
 
           // insert default css
-          const playerDefaultStyle = layerDoc.createElement('style')
-          playerDefaultStyle.setAttribute('type', 'text/css')
-          playerDefaultStyle.innerHTML = `html {background: #fff;} noscript {display: none;}`
-          layerDoc.head!.insertBefore(playerDefaultStyle, layerDoc.head!.firstChild!)
+          // const playerDefaultStyle = layerDoc.createElement('style')
+          // playerDefaultStyle.setAttribute('type', 'text/css')
+          // playerDefaultStyle.innerHTML = `html {background: #fff;} noscript {display: none;}`
+          // layerDoc.head!.insertBefore(playerDefaultStyle, layerDoc.head!.firstChild!)
 
           console.time('[Dom buffer]')
           Array.from(layerDoc.querySelectorAll('*')).forEach((ele: ElementX) => {

@@ -5,7 +5,7 @@ import Actions from './modules/Actions';
 import Screen from './modules/Screen';
 import Toolbar from './modules/Toolbar';
 import Message from './components/Message';
-
+import {recoverStorage} from './initEnv'
 import { hot, setConfig } from 'react-hot-loader';
 import { getRecorderData } from 'services/localStorage';
 import Player from 'player';
@@ -29,6 +29,7 @@ function Layout() {
       getRecorderData()
         .then(data => {
           Player.loadRecorderData(data as any);
+          recoverStorage(data.storage)
         })
         .catch(err => {
           setMessage(err);

@@ -1,0 +1,22 @@
+{
+  "runtime.js": "/runtime.85dab56e.js",
+  "commons.js": "/commons.bf996756.async.js",
+  "homepage.js": "/homepage.d231b8c9.async.js",
+  "index.css": "/index.css",
+  "index.js": "/index.d4340b29.async.js",
+  "login.css": "/login.css",
+  "login.js": "/login.503580e2.async.js",
+  "pdfPreview.css": "/pdfPreview.css",
+  "pdfPreview.js": "/pdfPreview.9e454f9b.async.js",
+  "register.css": "/register.css",
+  "register.js": "/register.54248f31.async.js",
+  "homepage.html": "/homepage.html",
+  "image/logo.png": "/image/logo.png",
+  "index.html": "/index.html",
+  "login.html": "/login.html",
+  "pdfPreview.html": "/pdfPreview.html",
+  "register.html": "/register.html",
+  "y-record/index.js": "/y-record/index.js",
+  "y-record/index.js.map": "/y-record/index.js.map",
+  "yrecord_sw.js": "/yrecord_sw.js"
+}

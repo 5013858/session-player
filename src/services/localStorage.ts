@@ -5,8 +5,15 @@ import Store from 'stores';
 type RecorderData = {
   recordList: any[];
   referer: string;
+  prefix: any;
+  storage:{
+    localStorage_record:any,
+    sessionStorage_record:any
+  }
 };
-
+const formatUrl = url => {
+  return url.split('/').slice(3).join('/');
+};
 export const getRecorderData = async (): Promise<RecorderData> => {
   try {
     // const { recordList, referer } = JSON.parse(localStorage.getItem('recorderData')! || '{}') as RecorderData;
@@ -19,10 +26,15 @@ export const getRecorderData = async (): Promise<RecorderData> => {
           'Bearer eyJhbGciOiJIUzI1NiJ9.dGVzdA.GfxRk-CtH6rXPrQstXkm8pkjEhPFO1h5kFEBciCZN48'
       },
       body: JSON.stringify({
-        _id: '6262688b3b2c6b11db9752ec'
+        _id: '628b6d4f1fde64d672cf7769'
       })
     }).then(res => res.json());
+    // debugger;
+
     const recordList = data[0].snapshot.data;
+    const {storage,location,fetchRecord} = data[0]
+    const {startUrl,originUrl} = location
+    console.log(location)
     const referer = '';
     if (!recordList || recordList.length === 0) {
       throw new Error('RecordData is empty 🧐');
@@ -34,7 +46,11 @@ export const getRecorderData = async (): Promise<RecorderData> => {
       throw new Error('Record list not start with a page snapshot');
     }
 
-    const initialPageSnapshot = firstRecord.snapshot;
+    // const initialPageSnapshot = firstRecord.snapshot;
+    if(!fetchRecord[formatUrl(startUrl)]){
+      alert('no fetchRecord[startLocation.url]')
+    }
+    const initialPageSnapshot = fetchRecord[formatUrl(startUrl)].shift().content;
 
     const { scroll, resize, t } = firstRecord;
 
@@ -47,7 +63,9 @@ export const getRecorderData = async (): Promise<RecorderData> => {
     const resultData = {
       recordList,
       referer,
-      initialPageSnapshot
+      initialPageSnapshot,
+      prefix:'/',
+      storage
     };
 
     Store.loadRecorderData(recordList, referer);

@@ -199,7 +199,7 @@ class PlayerClass extends ObserverPattern implements Player {
    * @param initialPageSnapshot
    * @param domLayer
    */
-  public loadRecorderData({ recordList, initialPageSnapshot, referer }) {
+  public loadRecorderData({ recordList, initialPageSnapshot, referer, prefix }) {
     if (!this.inited) {
       return _warn('can not loadTheRecordData before Player inited!');
     }
@@ -207,7 +207,8 @@ class PlayerClass extends ObserverPattern implements Player {
     DomTreeBufferer.fillTheDomLayerBySnapshot(
       Painter.domLayer,
       initialPageSnapshot,
-      referer
+      referer,
+      prefix
     ).then(_ => {
       this.initialDomReady = true;
       this.$emit('domready', this.framesReady);
