@@ -1,12 +1,15 @@
 import Player from 'player';
-import React, { useEffect } from 'react';
+import React, {   useEffect } from 'react';
 import { _log, _warn } from 'tools/log';
 import BEMProvider from 'tools/bem-classname';
 import Icon from 'components/Icon';
 import { useStoreState, useStore } from 'stores';
 import { usePlayerStatus } from 'player/hooks';
+// import { mockHover } from 'initEnv';
+import { recordNodeId } from 'initEnv/recordNode';
 
 const bem = BEMProvider('screen');
+
 
 export default function Screen() {
   let screen: HTMLDivElement;
@@ -51,6 +54,18 @@ export default function Screen() {
           sandbox="allow-forms allow-same-origin allow-scripts"
           // src="about:blank"
           // frameBorder="0"
+          onLoad={(e)=>{
+            const iframe = e.target as HTMLIFrameElement;
+            const {contentDocument} = iframe;
+            recordNodeId(contentDocument)
+              //填充 hover css
+              // if(iframe.contentDocument){
+              //   mockHover(iframe.contentDocument)
+              // }else{
+              //   console.error('mockHover error no Painter.domLayer.contentDocument')
+              // }
+
+          }}
         />
 
         {/* replay mouse move & click */}

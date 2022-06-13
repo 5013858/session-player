@@ -116,11 +116,11 @@ class DomTreeBuffererClass {
           // playerDefaultStyle.innerHTML = `html {background: #fff;} noscript {display: none;}`
           // layerDoc.head!.insertBefore(playerDefaultStyle, layerDoc.head!.firstChild!)
 
-          console.time('[Dom buffer]')
-          Array.from(layerDoc.querySelectorAll('*')).forEach((ele: ElementX) => {
-            this.buffer(ele)
-          })
-          console.timeEnd('[Dom buffer]')
+          // console.time('[Dom buffer]')
+          // Array.from(layerDoc.querySelectorAll('*')).forEach((ele: ElementX) => {
+          //   this.buffer(ele)
+          // })
+          // console.timeEnd('[Dom buffer]')
 
           myWindow.__DOC_BUF__ = this
 

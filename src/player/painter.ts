@@ -9,10 +9,13 @@ import { ElementX } from 'schemas/override';
 import { _log, _warn, _error } from 'tools/log';
 import { _now, _safeDivision, _throttle } from 'tools/utils';
 import DocumentBufferer from './dom-bufferer';
+import { sendMouseEvents } from 'reloadEvent/mouse';
+import { element2recorderId, recorderId2element } from 'initEnv/recordNode';
+import { triggerInput } from 'reloadEvent/form';
 
 let { getElementByRecordId, bufferNewElement } = DocumentBufferer;
-getElementByRecordId = getElementByRecordId.bind(DocumentBufferer);
-bufferNewElement = bufferNewElement.bind(DocumentBufferer);
+// getElementByRecordId = getElementByRecordId.bind(DocumentBufferer);
+// bufferNewElement = bufferNewElement.bind(DocumentBufferer);
 
 declare var ResizeObserver;
 
@@ -28,10 +31,11 @@ class PainterClass {
   public click: HTMLElement;
   public domLayer: HTMLIFrameElement;
   public canvas: HTMLElement;
-
   public canvasWidth: number;
   public canvasHeight: number;
   public lastMousePos = { x: 0, y: 0 };
+
+  public lastMoveNode:HTMLElement; //用于判断 mouse enter & out
 
   public recordType2Action = {
     move: this.paintMouseMove,
@@ -83,7 +87,6 @@ class PainterClass {
       const actionName = Object.keys(this.recordType2Action).includes(type)
         ? type
         : 'default';
-
       // distribute action by different type
       this.recordType2Action[actionName].call(this, record);
 
@@ -111,19 +114,41 @@ class PainterClass {
   }
 
   private paintMouseMove(record: MouseReocrd): void {
-    const { x, y } = record;
+    const {contentWindow, contentDocument} = this.domLayer;
+    const { x=0, y=0 } = record;
+    const ele = (contentDocument as Document).elementFromPoint(x||0, y||0) as HTMLElement;
+
+    if(this.lastMoveNode !== ele){
+      sendMouseEvents(this.lastMoveNode, contentWindow as Window, ['mouseout'])
+      sendMouseEvents(ele, contentWindow as Window, ['mouseover'])
+      // if(this.lastMoveNode&&this.lastMoveNode.getClientRects()[0]){
+      //   debugger;
+      //   const {left,right,top,bottom} = this.lastMoveNode.getClientRects()[0]
+      //   if(x>left&&x<right&&y>top&&y<bottom){
+      //     sendMouseEvents(this.lastMoveNode, contentWindow as Window, ['mouseout'])
+      //   }
+      // }
+    }else{
+      sendMouseEvents(ele, contentWindow as Window, ['mousemove'])
+    }
+    this.lastMoveNode = ele;
     const position = `translate(${x}px, ${y}px)`
 		this.mouse.style.transform = position
   }
 
   private paintMouseClick(record: MouseReocrd): void {
     const { x, y } = record
+    console.log(x,y)
     const dot = document.createElement('div')
     dot.className = 'screen_click'
     dot.style.left = x + 'px'
     dot.style.top = y + 'px'
     this.mouseLayer.append(dot)
 
+
+    const {contentWindow, contentDocument} = this.domLayer;
+    const ele = (contentDocument as Document).elementFromPoint(x||0, y||0);
+    sendMouseEvents(ele as HTMLElement,contentWindow as Window, ['click','mousedown'])
     setTimeout(() => {
       dot.classList.add('is-active')
     }, 10)
@@ -271,12 +296,41 @@ class PainterClass {
   }
 
   private paintFormChange(record: EventReocrd): void {
-    const { k, v, target } = record;
-    const targetEle = target && getElementByRecordId(target);
-
-    if (targetEle) {
-      targetEle[k!] = v;
+    const { x=0,y=0,k, v, target,tagName } = record;
+  //  console.log(recorderId2element)
+    // const targetEle = target && getElementByRecordId(target);
+    // const targetEle = target &&  recorderId2element[target];
+   
+    // if(targetEle){}
+    // console.log(target)
+    const {contentDocument} = this.domLayer;
+    const ele = contentDocument?.elementFromPoint(x,y);
+    if(ele&&k==='value'){
+      let eleTagName = ele.tagName.toLocaleLowerCase() ;
+      let target;
+      if(eleTagName!==tagName){
+        const eleList = ele.querySelectorAll(eleTagName)
+        target =  Array.from(eleList).find((ele)=>{
+          const rects = ele.getClientRects();
+          if( rects.length===0){
+            return false;
+          }
+          const {left,right,bottom,top} =  rects[0];
+          if(x>left&&x<right&&y>top&&y<bottom){
+            return true;
+          }
+          return false;
+        })
+        
+      }else{
+        target = ele;
+      }
+      console.log(target)
+      if(target){
+        triggerInput(ele,v);
+      }
     }
+
   }
 
   private paintResize(record): void {

@@ -16,39 +16,42 @@ const fetchEvent = ({ url, method = 'POST', body = {} }) => {
 };
   
 let fetchRecordMap = {};
-self.addEventListener('install', async () => {
-    fetchRecordMap = (await (await fetchEvent({url:'http://localhost:7001/records/getFetchRecord'})).json()).data
-    console.log(fetchRecordMap)
+self.addEventListener('install',  (event) => {
+    event.waitUntil((async()=>{
+        fetchRecordMap = (await (await fetchEvent({url:'http://localhost:7001/records/getFetchRecord'})).json()).data
+        console.log('install',fetchRecordMap)
+    })())
 });
 self.onfetch = async function (event) {
     // console.log(event.request.url)
-
-    const response = await fetch(event.request);
-    const headersJson = Object.fromEntries(response.headers.entries());
-    const contentType = headersJson['content-type']||'';
-    const requestUrl = formatUrl(event.request.url)
-    if(event.request.url.startsWith(y_record_server_host)){
-        return response;
-    }
-
-    if (!(contentType.includes('application/json'))){
-        return response;
-    }
-    try {
-        console.log('first',requestUrl)
-        if (requestUrl in fetchRecordMap && fetchRecordMap[requestUrl].length>0) {
-            const record = fetchRecordMap[requestUrl].shift();
-            console.log(record)
-            const newHeader = new Headers(record.headers);
-            const initResponse = { headers: newHeader };
-            const temp = new Response(record.content, initResponse);
-            console.log('temp yes')
-            return temp;
-        }else{
+        console.log(fetchRecordMap)
+        event.respondWith((async () => {
+        const response = await fetch(event.request);
+        const headersJson = Object.fromEntries(response.headers.entries());
+        const contentType = headersJson['content-type']||'';
+        const requestUrl = formatUrl(event.request.url)
+        if(event.request.url.startsWith(y_record_server_host)){
             return response;
         }
-    } catch (e) {
-    console.log(e);
-    }
-    
+
+        if (!(contentType.includes('application/json'))){
+            return response;
+        }
+        try {
+            console.log('first',requestUrl)
+            if (requestUrl in fetchRecordMap && fetchRecordMap[requestUrl].length>0) {
+                const record = fetchRecordMap[requestUrl].shift();
+                console.log(record)
+                const newHeader = new Headers(record.headers);
+                const initResponse = { headers: newHeader };
+                const temp = new Response(record.content, initResponse);
+                console.log('temp yes')
+                return temp;
+            }else{
+                throw new Error(`未被识别的网络请求: ${requestUrl}`)
+                // return response;
+            }
+        } catch (e) {
+        console.log(e);
+    }})())
   };

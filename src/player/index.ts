@@ -6,7 +6,9 @@ import FrameWorker from './frame';
 import Painter from './painter';
 import ObserverPattern from './observer';
 import { myWindow } from 'schemas/override';
+
 import Store from 'stores';
+// import { mockHover } from 'initEnv';
 
 class PlayerClass extends ObserverPattern implements Player {
   // settings related
@@ -242,7 +244,7 @@ class PlayerClass extends ObserverPattern implements Player {
     this.recordPainting = true;
 
     if ((startRecordIndex || startRecordIndex === 0) && endRecordIndex) {
-      for (let i = startRecordIndex; i <= endRecordIndex; i++) {
+      for (let i = startRecordIndex; i < endRecordIndex; i++) {
         // ------------------- Paint ---------------------------
         // ------------------- begins --------------------------
         // ------------------- at ------------------------------
